@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8f5">
+  <meta name="description" content="TaskTamer helps students turn overwhelming workloads into manageable next steps.">
+  <title>TaskTamer — Less Overwhelm. More Progress.</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#home" aria-label="TaskTamer home">
+        <span class="brand-mark">t<span>.</span></span>
+        <span class="brand-copy">
+          <strong>TaskTamer</strong>
+          <small>Less overwhelm. More progress.</small>
+        </span>
+      </a>
+
+      <button class="mobile-close icon-button" id="closeSidebar" aria-label="Close navigation">×</button>
+
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="home"><span>⌂</span> Overview</button>
+        <button class="nav-link" data-view="tasks"><span>▤</span> My tasks <span class="nav-count" id="navTaskCount">0</span></button>
+        <button class="nav-link" data-view="planner"><span>▦</span> Smart planner</button>
+        <button class="nav-link" data-view="calendar"><span>▦</span> Calendar</button>
+        <button class="nav-link" data-view="focus"><span>◷</span> Focus studio</button>
+        <button class="nav-link" data-view="progress"><span>↗</span> Insights</button>
+      </nav>
+
+      <div class="workspace-label category-heading">YOUR SPACE
+        <button class="text-button" id="addCategory" aria-label="Add category">+</button>
+      </div>
+      <div id="categoryList" class="category-list"></div>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="sidebar-quote">
+        <span class="quote-icon">✳</span>
+        <p>Small steps, taken consistently, create remarkable progress.</p>
+        <span class="quote-line"></span>
+        <small>YOUR DAILY REMINDER</small>
+      </div>
+
+      <button class="profile-button" id="profileButton">
+        <span class="avatar" id="sidebarAvatar">A</span>
+        <span class="profile-info">
+          <strong id="sidebarName">Alex Morgan</strong>
+          <small>Personal workspace</small>
+        </span>
+        <span class="profile-more">···</span>
+      </button>
+    </aside>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <main id="main" class="main-area" tabindex="-1">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <button class="icon-button mobile-menu" id="openSidebar" aria-label="Open navigation">☰</button>
+          <span class="breadcrumb-muted">Workspace</span>
+          <span class="breadcrumb-divider">/</span>
+          <strong id="breadcrumbTitle">Overview</strong>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="globalSearch" type="search" placeholder="Search anything..." aria-label="Search tasks">
+            <kbd> / </kbd>
+          </label>
+          <button class="icon-button notification-button" id="notificationButton" aria-label="Show reminders">♧<span class="notification-dot"></span></button>
+          <button class="avatar top-avatar" id="topAvatar" aria-label="Open settings">A</button>
+        </div>
+      </header>
+
+      <section class="view active-view" id="view-home" data-page="home">
+        <div class="welcome-row">
+          <div>
+            <div class="eyebrow"><span class="live-dot"></span> YOUR PERSONAL WORKSPACE</div>
+            <h1 id="welcomeTitle">A little progress goes a long way.</h1>
+            <p class="page-subtitle" id="welcomeSubtitle">Let's make today feel a little more manageable.</p>
+          </div>
+          <button class="button button-primary" id="openAddTask"><span>＋</span> New task</button>
+        </div>
+
+        <div class="date-strip">
+          <span class="date-icon">✳</span>
+          <span id="currentDate">Your day, at a glance</span>
+          <span class="date-divider"></span>
+          <span id="dailyQuote">You don't have to do everything. Just the next thing.</span>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top"><span>Total tasks</span><span class="stat-icon mint">▤</span></div>
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-foot"><span id="statActive">0 active</span><span class="stat-note">in your workspace</span></div>
+            <div class="mini-track"><span id="totalBar"></span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Completed</span><span class="stat-icon green">✓</span></div>
+            <div class="stat-value" id="statCompleted">0</div>
+            <div class="stat-foot"><span class="positive" id="completionRate">0%</span><span class="stat-note">of all tasks</span></div>
+            <div class="mini-track"><span id="completedBar"></span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Due today</span><span class="stat-icon amber">◷</span></div>
+            <div class="stat-value" id="statToday">0</div>
+            <div class="stat-foot"><span id="overdueLabel">No overdue tasks</span><span class="stat-note">needs attention</span></div>
+            <div class="mini-track amber-track"><span id="todayBar"></span></div>
+          </article>
+          <article class="stat-card overload-card">
+            <div class="stat-top"><span>Workload balance</span><span class="stat-icon rose">⌁</span></div>
+            <div class="stat-value workload-value" id="overloadValue">Balanced</div>
+            <div class="stat-foot"><span id="overloadDescription">You're finding your rhythm.</span></div>
+            <div class="mini-track workload-track"><span id="overloadBar"></span></div>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dashboard-main">
+            <section class="panel next-step-panel">
+              <div class="panel-heading">
+                <div>
+                  <div class="eyebrow">YOUR NEXT MOVE</div>
+                  <h2>A good place to start</h2>
+                </div>
+                <button class="text-button" id="refreshRecommendation">↻ Refresh</button>
+              </div>
+              <div id="nextTaskContent"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <div class="eyebrow">KEEP IT MOVING</div>
+                  <h2>Today's plan</h2>
+                  <p class="muted small" id="todayPlanSubtitle">A few steps at a time.</p>
+                </div>
+                <button class="button button-secondary button-small" id="tenMinuteButton">◷ 10-minute mode</button>
+              </div>
+              <div class="plan-progress">
+                <div class="progress-track"><span id="planProgressBar"></span></div>
+                <span id="planProgressText">0 of 0 complete</span>
+              </div>
+              <div class="task-list" id="todayTaskList"></div>
+              <button class="button button-ghost full-width" data-goto="tasks">View all tasks <span>→</span></button>
+            </section>
+          </div>
+
+          <div class="dashboard-side">
+            <section class="panel suggestions-panel">
+              <div class="panel-heading">
+                <div><div class="eyebrow">A LITTLE GUIDANCE</div><h2>Suggestions for you</h2></div>
+                <span class="sparkle">✳</span>
+              </div>
+              <div id="suggestionsList" class="suggestions-list"></div>
+            </section>
+
+            <section class="panel focus-widget">
+              <div class="panel-heading">
+                <div><div class="eyebrow">FIND YOUR FLOW</div><h2>Focus studio</h2></div>
+                <button class="icon-button small-icon" data-goto="focus" aria-label="Open focus studio">↗</button>
+              </div>
+              <div class="focus-preview">
+                <div class="focus-ring" id="miniFocusRing"><span id="miniFocusTime">25:00</span></div>
+                <div class="focus-preview-copy"><strong id="focusWidgetTitle">One thing at a time.</strong><small id="focusWidgetSubtitle">Your next focused session awaits.</small></div>
+              </div>
+              <button class="button button-primary full-width" data-goto="focus">Open focus studio →</button>
+            </section>
+
+            <section class="panel progress-widget">
+              <div class="panel-heading">
+                <div><div class="eyebrow">YOUR MOMENTUM</div><h2>Progress</h2></div>
+                <button class="text-button" data-goto="progress">Details →</button>
+              </div>
+              <div class="progress-summary">
+                <div class="progress-donut" id="progressDonut"><span id="donutPercent">0%</span></div>
+                <div class="progress-numbers">
+                  <div><strong id="progressCompleted">0</strong><span>Completed</span></div>
+                  <div><strong id="progressRemaining">0</strong><span>Remaining</span></div>
+                  <div><strong id="progressMinutes">0m</strong><span>Focus time</span></div>
+                </div>
+              </div>
+              <p class="encouragement" id="encouragement">Every small step counts.</p>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-tasks" data-page="tasks">
+        <div class="page-header">
+          <div><div class="eyebrow">YOUR PERSONAL WORKSPACE</div><h1>My tasks</h1><p class="page-subtitle">Get everything out of your head and into a plan.</p></div>
+          <button class="button button-primary" id="tasksAddButton">＋ Add a task</button>
+        </div>
+        <div class="filter-toolbar">
+          <div class="filter-tabs" role="group" aria-label="Filter tasks">
+            <button class="filter-tab selected" data-filter="all">All tasks</button>
+            <button class="filter-tab" data-filter="active">To do</button>
+            <button class="filter-tab" data-filter="today">Today</button>
+            <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+            <button class="filter-tab" data-filter="completed">Completed</button>
+          </div>
+          <div class="filter-controls">
+            <select id="categoryFilter" aria-label="Filter by category"><option value="all">All categories</option></select>
+            <select id="sortTasks" aria-label="Sort tasks">
+              <option value="smart">Smart order</option><option value="due">Due date</option><option value="priority">Priority</option><option value="duration">Shortest first</option><option value="created">Recently added</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel task-page-panel">
+          <div class="task-page-header"><span id="taskResultCount">Your tasks</span><span class="muted small">Select a task to mark it complete.</span></div>
+          <div id="allTaskList" class="task-list"></div>
+          <div id="emptyTasks" class="empty-state hidden"><span class="empty-icon">✳</span><h3>A little breathing room.</h3><p>No tasks here yet. Add something you'd like to get done.</p><button class="button button-primary" data-open-add>＋ Create your first task</button></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-planner" data-page="planner">
+        <div class="page-header"><div><div class="eyebrow">MAKE ROOM FOR WHAT MATTERS</div><h1>Smart planner</h1><p class="page-subtitle">A realistic plan starts with the time and energy you actually have.</p></div><button class="button button-primary" id="buildPlanButton">✳ Build my plan</button></div>
+        <div class="planner-grid">
+          <section class="panel planner-settings">
+            <div class="panel-heading"><div><div class="eyebrow">YOUR CAPACITY</div><h2>Design your day</h2></div><span class="stat-icon mint">◷</span></div>
+            <label class="field-label" for="availableMinutes">How much time do you have?</label>
+            <div class="range-value"><strong id="availableTimeLabel">120 minutes</strong><span>available today</span></div>
+            <input type="range" id="availableMinutes" min="10" max="480" step="10" value="120">
+            <div class="range-labels"><span>10 min</span><span>8 hours</span></div>
+            <label class="field-label" for="energyLevel">How's your energy?</label>
+            <select id="energyLevel" class="field-control">
+              <option value="low">Low — keep it gentle</option><option value="medium" selected>Medium — steady progress</option><option value="high">High — ready for a challenge</option>
+            </select>
+            <label class="field-label" for="planningPriority">What matters most?</label>
+            <select id="planningPriority" class="field-control">
+              <option value="balanced">A balanced day</option><option value="deadline">Closest deadlines</option><option value="quick">Quick wins first</option><option value="important">Highest priorities first</option>
+            </select>
+            <label class="field-label" for="planDate">Plan for</label>
+            <input class="field-control" type="date" id="planDate">
+            <label class="check-row"><input type="checkbox" id="includeFlexible" checked><span>Include flexible tasks</span></label>
+            <label class="check-row"><input type="checkbox" id="includeBreaks" checked><span>Schedule short breaks</span></label>
+            <div class="callout"><strong>Our approach</strong><p>We prioritize deadlines, effort, and your available energy. You stay in control of the final plan.</p></div>
+          </section>
+          <section class="panel generated-plan">
+            <div class="panel-heading"><div><div class="eyebrow">YOUR PERSONALIZED PLAN</div><h2 id="generatedPlanTitle">Let's make a little progress.</h2></div><button class="button button-secondary button-small" id="exportPlanButton">Export plan ↓</button></div>
+            <div id="plannerSummary" class="planner-summary"></div>
+            <div id="generatedPlanList" class="generated-plan-list"><div class="empty-state"><span class="empty-icon">✳</span><h3>Your plan starts here.</h3><p>Choose your available time and energy, then build a realistic plan.</p></div></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-calendar" data-page="calendar">
+        <div class="page-header"><div><div class="eyebrow">SEE THE BIGGER PICTURE</div><h1>Your calendar</h1><p class="page-subtitle">Know what's coming without keeping it all in your head.</p></div><button class="button button-primary" data-open-add>＋ Add task</button></div>
+        <section class="panel calendar-panel">
+          <div class="calendar-heading"><button class="icon-button" id="prevMonth" aria-label="Previous month">←</button><h2 id="calendarMonth">Month Year</h2><button class="icon-button" id="nextMonth" aria-label="Next month">→</button><button class="button button-secondary button-small" id="calendarToday">Today</button></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+          <div class="calendar-agenda"><h3 id="agendaTitle">Your agenda</h3><div id="calendarAgenda"></div></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-focus" data-page="focus">
+        <div class="page-header"><div><div class="eyebrow">ONE THING AT A TIME</div><h1>Focus studio</h1><p class="page-subtitle">A calmer space for doing the work that matters.</p></div></div>
+        <div class="focus-layout">
+          <section class="panel focus-main">
+            <div class="eyebrow">YOUR FOCUS SESSION</div>
+            <h2 id="focusSessionHeading">Make space to concentrate.</h2>
+            <p class="muted" id="focusTaskSubtitle">Choose a task or start a quiet session.</p>
+            <select class="field-control" id="focusTaskSelect" aria-label="Choose a task for your session"><option value="">No specific task</option></select>
+            <div class="timer-display" id="focusTimerDisplay" role="timer" aria-live="off">25:00</div>
+            <div class="timer-status" id="focusTimerStatus">READY WHEN YOU ARE</div>
+            <div class="timer-controls">
+              <button class="button button-primary timer-start" id="timerStart">▶ Start focus</button>
+              <button class="button button-secondary" id="timerReset">↺ Reset</button>
+              <button class="button button-ghost" id="timerSkip">Skip session →</button>
+            </div>
+            <div class="timer-modes" role="group" aria-label="Focus duration">
+              <button class="timer-mode selected" data-minutes="25" data-mode="focus">Pomodoro <small>25 min</small></button>
+              <button class="timer-mode" data-minutes="50" data-mode="deep">Deep work <small>50 min</small></button>
+              <button class="timer-mode" data-minutes="10" data-mode="short">Quick focus <small>10 min</small></button>
+              <button class="timer-mode" data-minutes="5" data-mode="break">Short break <small>5 min</small></button>
+            </div>
+            <div class="session-note"><span>✳</span><span>Before you begin, decide what “done” looks like for this session.</span></div>
+          </section>
+          <div class="focus-side">
+            <section class="panel"><div class="panel-heading"><div><div class="eyebrow">CLEAR THE DECK</div><h2>Before you start</h2></div></div>
+              <label class="field-label" for="sessionGoal">My goal for this session</label><textarea class="field-control" id="sessionGoal" rows="3" placeholder="e.g. Finish the introduction..."></textarea>
+              <label class="field-label" for="distractionNote">Something on my mind</label><textarea class="field-control" id="distractionNote" rows="3" placeholder="Write it down so you can return to it later..."></textarea>
+              <button class="button button-secondary full-width" id="saveFocusNotes">Save session notes</button>
+            </section>
+            <section class="panel"><div class="eyebrow">YOUR PRACTICE</div><h2>Focus stats</h2><div class="focus-stat-row"><span>Sessions completed</span><strong id="focusSessionsCount">0</strong></div><div class="focus-stat-row"><span>Total focus time</span><strong id="focusTotalTime">0 min</strong></div><div class="focus-stat-row"><span>Today's focus</span><strong id="focusTodayTime">0 min</strong></div></section>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-progress" data-page="progress">
+        <div class="page-header"><div><div class="eyebrow">NOTICE YOUR PROGRESS</div><h1>Insights & progress</h1><p class="page-subtitle">Useful patterns, without pressure to be perfect.</p></div><button class="button button-secondary" id="exportDataButton">Export my data ↓</button></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Tasks completed</span><span class="stat-icon green">✓</span></div><div class="stat-value" id="insightCompleted">0</div><div class="stat-foot"><span class="stat-note">All time</span></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Completion rate</span><span class="stat-icon mint">↗</span></div><div class="stat-value" id="insightRate">0%</div><div class="stat-foot"><span class="stat-note">Of all tasks</span></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Focus minutes</span><span class="stat-icon amber">◷</span></div><div class="stat-value" id="insightFocus">0</div><div class="stat-foot"><span class="stat-note">Recorded sessions</span></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Current streak</span><span class="stat-icon rose">✳</span></div><div class="stat-value" id="insightStreak">0 days</div><div class="stat-foot"><span class="stat-note">Keep your own pace</span></div></article>
+        </div>
+        <div class="insights-grid">
+          <section class="panel"><div class="panel-heading"><div><div class="eyebrow">CONSISTENCY, NOT PERFECTION</div><h2>Last seven days</h2></div></div><div class="weekly-chart" id="weeklyChart"></div></section>
+          <section class="panel"><div class="panel-heading"><div><div class="eyebrow">WHERE YOUR TIME GOES</div><h2>By category</h2></div></div><div id="categoryBreakdown"></div></section>
+        </div>
+        <section class="panel"><div class="eyebrow">A GENTLE REMINDER</div><h2 id="insightMessage">Progress is more than a perfect streak.</h2><p class="muted">These insights are based on activity recorded in this browser. Use them to learn what helps you, not to judge yourself.</p></section>
+      </section>
+
+      <section class="view" id="view-settings" data-page="settings">
+        <div class="page-header"><div><div class="eyebrow">MAKE IT YOURS</div><h1>Settings</h1><p class="page-subtitle">Your workspace should work for you.</p></div></div>
+        <div class="settings-layout">
+          <section class="panel settings-panel"><div class="eyebrow">PERSONAL DETAILS</div><h2>Your profile</h2>
+            <label class="field-label" for="settingsName">Display name</label><input class="field-control" id="settingsName" maxlength="60" placeholder="Your name">
+            <label class="field-label" for="settingsDayStart">Your day usually starts at</label><input class="field-control" id="settingsDayStart" type="time" value="09:00">
+            <label class="field-label" for="settingsWeekStart">Week starts on</label><select class="field-control" id="settingsWeekStart"><option value="1">Monday</option><option value="0">Sunday</option></select>
+            <button class="button button-primary" id="saveSettings">Save preferences</button>
+          </section>
+          <section class="panel settings-panel"><div class="eyebrow">ACCESSIBILITY & COMFORT</div><h2>Your experience</h2>
+            <label class="setting-row"><span><strong>Reduce motion</strong><small>Limit decorative animations.</small></span><input type="checkbox" id="reduceMotion"></label>
+            <label class="setting-row"><span><strong>High contrast</strong><small>Increase the contrast of interface elements.</small></span><input type="checkbox" id="highContrast"></label>
+            <label class="setting-row"><span><strong>Larger text</strong><small>Make the interface easier to read.</small></span><input type="checkbox" id="largeText"></label>
+            <label class="setting-row"><span><strong>Sound alerts</strong><small>Play a brief tone when a timer ends.</small></span><input type="checkbox" id="soundAlerts"></label>
+            <label class="setting-row"><span><strong>Confirm before deleting</strong><small>Prevent accidental task deletion.</small></span><input type="checkbox" id="confirmDelete" checked></label>
+          </section>
+          <section class="panel settings-panel"><div class="eyebrow">YOUR INFORMATION</div><h2>Data & privacy</h2><p class="muted">Tasks, settings, and session history are saved in this browser. They are not sent to a server by this prototype.</p>
+            <button class="button button-secondary full-width" id="backupDataButton">Download a backup</button>
+            <button class="button button-danger full-width" id="clearDataButton">Clear all local data</button>
+          </section>
+        </div>
+      </section>
+
+      <footer class="app-footer"><span>TaskTamer <span class="footer-dot">·</span> A little progress, every day.</span><span>Built for real life, not perfect schedules.</span></footer>
+    </main>
+  </div>
+
+  <!-- Add/edit task dialog -->
+  <dialog class="modal" id="taskDialog" aria-labelledby="taskDialogTitle">
+    <form id="taskForm">
+      <div class="modal-heading"><div><div class="eyebrow">MAKE IT MANAGEABLE</div><h2 id="taskDialogTitle">Add a new task</h2></div><button type="button" class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div>
+      <input type="hidden" id="editTaskId">
+      <label class="field-label" for="taskTitle">What would you like to do? <span class="required">*</span></label>
+      <input class="field-control" id="taskTitle" maxlength="180" required placeholder="e.g. Finish my data structures assignment">
+      <label class="field-label" for="taskDescription">A little more context (optional)</label>
+      <textarea class="field-control" id="taskDescription" rows="2" maxlength="1000" placeholder="What does done look like?"></textarea>
+      <div class="form-grid">
+        <div><label class="field-label" for="taskCategory">Category</label><select class="field-control" id="taskCategory"><option>Study</option><option>Personal</option><option>Work</option><option>Health</option><option>Projects</option><option>Other</option></select></div>
+        <div><label class="field-label" for="taskPriority">Priority</label><select class="field-control" id="taskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+        <div><label class="field-label" for="taskDue">Due date</label><input class="field-control" id="taskDue" type="date"></div>
+        <div><label class="field-label" for="taskTime">Estimated minutes</label><input class="field-control" id="taskTime" type="number" min="5" max="1440" step="5" value="30"></div>
+        <div><label class="field-label" for="taskEnergy">Energy needed</label><select class="field-control" id="taskEnergy"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+        <div><label class="field-label" for="taskStatus">Status</label><select class="field-control" id="taskStatus"><option value="active">To do</option><option value="completed">Completed</option></select></div>
+      </div>
+      <label class="field-label" for="taskSubtasks">Steps to complete (optional, one per line)</label>
+      <textarea class="field-control" id="taskSubtasks" rows="3" placeholder="Open the assignment brief&#10;Outline the main points&#10;Complete the first section"></textarea>
+      <div class="modal-actions"><button type="button" class="button button-ghost" data-close-dialog>Cancel</button><button type="submit" class="button button-primary" id="saveTaskButton">Save task</button></div>
+    </form>
+  </dialog>
+
+  <!-- Task details and step breakdown -->
+  <dialog class="modal" id="detailDialog" aria-labelledby="detailTitle">
+    <div class="modal-heading"><div><div class="eyebrow">YOUR NEXT SMALL STEP</div><h2 id="detailTitle">Task details</h2></div><button class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div>
+    <div id="detailContent"></div>
+    <div class="modal-actions"><button class="button button-secondary" id="detailEditButton">Edit task</button><button class="button button-primary" id="detailStartButton">Start focus session →</button></div>
+  </dialog>
+
+  <!-- Ten-minute and rescue mode -->
+  <dialog class="modal" id="rescueDialog" aria-labelledby="rescueTitle">
+    <div class="modal-heading"><div><div class="eyebrow">NO PRESSURE, JUST PROGRESS</div><h2 id="rescueTitle">Let's make this smaller.</h2></div><button class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div>
+    <p class="muted" id="rescueIntro">You don't need to finish everything. Let's find a starting point.</p>
+    <div id="rescueContent"></div>
+    <div class="modal-actions"><button class="button button-ghost" data-close-dialog>Not now</button><button class="button button-primary" id="rescueStartButton">Let's start →</button></div>
+  </dialog>
+
+  <dialog class="modal" id="categoryDialog" aria-labelledby="categoryDialogTitle">
+    <form id="categoryForm">
+      <div class="modal-heading"><h2 id="categoryDialogTitle">Create a category</h2><button type="button" class="icon-button" data-close-dialog aria-label="Close dialog">×</button></div>
+      <label class="field-label" for="newCategoryName">Category name</label><input class="field-control" id="newCategoryName" maxlength="32" required placeholder="e.g. University">
+      <div class="modal-actions"><button type="button" class="button button-ghost" data-close-dialog>Cancel</button><button type="submit" class="button button-primary">Create category</button></div>
+    </form>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" role="status" aria-live="polite"></div>
+  <div id="celebration" class="celebration" aria-live="polite"></div>
+
+  <noscript><p class="noscript-message">TaskTamer needs JavaScript enabled to manage your tasks.</p></noscript>
+</body>
+</html>
